@@ -97,7 +97,7 @@ app.post('/signup', async (req, res) => {
     }
   
     // Return success message if username and password are both present
-    return res.send('<div id="success-message">User signed up successfully.</div>');
+    return res.send('<div id="success-message">User is created</div>');
   });
 
 app.listen(port, () => {
