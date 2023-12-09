@@ -1,6 +1,6 @@
-const express = require('express');
-const dotenv = require('dotenv');
-const mongoose = require('mongoose');
+const express = require("express");
+const dotenv = require("dotenv");
+const mongoose = require("mongoose");
 
 const app = express();
 
@@ -8,23 +8,29 @@ const port = process.env.PORT || 80;
 
 dotenv.config();
 
-mongoose.connect(process.env.DBURL, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(()=>{console.log("DB is connected")})
-    .catch(err=> console.error('Could not connect to mongodb', err))
+mongoose
+  .connect(process.env.DBURL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log("DB is connected");
+  })
+  .catch((err) => console.error("Could not connect to mongodb", err));
 
 const userSchema = new mongoose.Schema({
-    username: String,
-    password: String
+  username: String,
+  password: String,
 });
 
 // Create model for the schema
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
-
-app.get('/signup', (req, res) => {
+app.get("/", (req, res) => res.redirect("/signup"));
+app.get("/signup", (req, res) => {
   res.send(`
     <style>
       body {
@@ -73,32 +79,34 @@ app.get('/signup', (req, res) => {
   `);
 });
 
-app.post('/signup', async (req, res) => {
-    const { username, password } = req.body; // Get form data
-    console.log(username);
-    // Check for missing username or password
-    if (!username) {
-      return res.send('<div id="error-message">Username is required</div>');
-    }
-    if (!password) {
-      return res.send('<div id="error-message">Password is required</div>');
-    }
+app.post("/signup", async (req, res) => {
+  const { username, password } = req.body; // Get form data
+  console.log(username);
+  // Check for missing username or password
+  if (!username) {
+    return res.send('<div id="error-message">Username is required</div>');
+  }
+  if (!password) {
+    return res.send('<div id="error-message">Password is required</div>');
+  }
 
-    const user = new User({
-        username,
-        password
-    });
-
-    try{
-        await user.save();
-    }catch(err){
-        console.error(err);
-        return res.send('<div id="error-message">Something went wrong, please try later</div>');
-    }
-  
-    // Return success message if username and password are both present
-    return res.send('<div id="success-message">User is created</div>');
+  const user = new User({
+    username,
+    password,
   });
+
+  try {
+    await user.save();
+  } catch (err) {
+    console.error(err);
+    return res.send(
+      '<div id="error-message">Something went wrong, please try later</div>'
+    );
+  }
+
+  // Return success message if username and password are both present
+  return res.send('<div id="success-message">User is created</div>');
+});
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
